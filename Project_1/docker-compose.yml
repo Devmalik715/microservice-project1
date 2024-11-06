@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    networks:
+      - app-network
+
+  user-service:
+    build:
+      context: ./user-service
+    ports:
+      - "4000:4000"
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/userDB
+      - JWT_SECRET=your_secret_key
+      - PORT=4000
+    networks:
+      - app-network
+
+  product-service:
+    build:
+      context: ./product-service
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/productDB
+      - PORT=5000
+    networks:
+      - app-network
+
+  payment-service:
+    build:
+      context: ./payment-service
+    ports:
+      - "6000:6000"
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/paymentDB
+      - PORT=6000
+      - RABBITMQ_URL=amqp://rabbit:5672  # URL to connect to RabbitMQ
+    networks:
+      - app-network
+
+  order-service:
+    build:
+      context: ./order-service
+    ports:
+      - "7000:7000"
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/orderDB
+      - PORT=7000
+      - RABBITMQ_URL=amqp://rabbit:5672  # URL to connect to RabbitMQ if needed
+    networks:
+      - app-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    hostname: my-rabbit
+    container_name: rabbit
+    ports:
+      - "5672:5672"       # RabbitMQ port
+      - "15672:15672"     # RabbitMQ management UI
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
