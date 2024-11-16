@@ -66,6 +66,19 @@ services:
     networks:
       - app-network
 
+  ui-service:
+    build:
+      context: ./ui-service
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_USER_SERVICE_URL=http://user-service:4000
+      - REACT_APP_PRODUCT_SERVICE_URL=http://product-service:5000
+      - REACT_APP_ORDER_SERVICE_URL=http://order-service:7000
+      - REACT_APP_PAYMENT_SERVICE_URL=http://payment-service:6000
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
